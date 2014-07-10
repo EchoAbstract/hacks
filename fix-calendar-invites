@@ -1,0 +1,64 @@
+#!/usr/bin/env python
+
+# From: http://kb.mit.edu/confluence/pages/viewpage.action?pageId=12386508
+
+CACHE = "~/Library/Calendars/Calendar Cache"
+CALENDAR_DIR = "~/Library/Calendars"
+
+def maybe_close_calendar():
+    "If Calendar.app is open, close it"
+
+    print "Would close calendar"
+
+def make_temp_dir():
+    "Create a temporary backup directory."
+
+    print "Would make a temp backup dir"
+    return "/tmp/stuff"
+
+def backup(temp, directory):
+    "Backup directory to temp."
+    
+    print "Would backup %s to %s" % (directory, temp)
+
+
+def delete_dir(dir):
+    "Remove directory"
+    print "Removing %s" % (dir)
+
+def delete_cache(cache_dir):
+    "Remove the given cache directory"
+
+    print "Removing cache: %s" %(cache_dir)
+
+def delete_events(event_dir):
+    "Remove the given event directory"
+
+    print "Removing events: %s" %(event_dir)
+
+def list_calendars(calendar_dir):
+    "Find all calendars in the given directory."
+    
+    # Calendars are found like: ~/Library/Calendars/*.calendar/Events
+
+    return ["~/Library/Calendars/12345.calendar/Events", "~/Library/Calendars/6789.calendar/Events"]
+
+def run():
+    "Run the script"
+
+    maybe_close_calendar()
+
+    temp_dir = make_temp_dir()
+
+    backup(temp_dir, CACHE)
+    delete_cache(CACHE)
+
+    calendars = list_calendars(CALENDAR_DIR)
+
+    for c in calendars:
+        event_dir = c + "/Events"
+        backup(temp_dir, event_dir)
+        delete_events(event_dir)
+
+if __name__ == "__main__":
+    run()
