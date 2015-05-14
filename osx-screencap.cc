@@ -21,12 +21,8 @@ CFURLRef CreateURLFromCString( char *url ){
   return cfurl;
 }
 
-void GrabScreen( char *outputFileName ){
-  // Phase 0, just the first screen
-  // Phase 1, all screens, different files
-  // Phase 2, Joined images
-  CFURLRef outputFile = CreateURLFromCString( outputFileName );
-  CGImageRef image = CGDisplayCreateImage( kCGDirectMainDisplay );
+void SaveImage( CGImageRef image, CFURLRef outputFile ){
+
   CGImageDestinationRef output = CGImageDestinationCreateWithURL( outputFile,
                                                                   kPNG,
                                                                   1,
@@ -37,6 +33,32 @@ void GrabScreen( char *outputFileName ){
                               NULL );
 
   CGImageDestinationFinalize( output );
+
+}
+
+void GrabScreen( char *outputFileName ){
+  // Phase 0, just the first screen: Done
+  // Phase 1, all screens, different files: Done
+  // Phase 2, Joined images
+  // Phase 3, handle errors?
+
+  // Get the list of displays
+  const uint32_t kMaxDisplays = 32;
+  uint32_t displayCount = 0;
+  CGDirectDisplayID *displays = static_cast<CGDirectDisplayID *>( malloc( kMaxDisplays * sizeof( CGDirectDisplayID ) ) );
+  CGError error = CGGetActiveDisplayList( kMaxDisplays, displays, &displayCount );
+  
+
+  size_t stringLen = strlen( outputFileName ) + 20;
+  char *tmpStringBuf = static_cast<char *>( malloc( stringLen ) );
+
+  for (uint32_t i = 0; i < displayCount; i++){
+    snprintf( tmpStringBuf, stringLen-1, "file://%s-%02d.png", outputFileName, i );
+    CFURLRef outputFile = CreateURLFromCString( tmpStringBuf );
+    CGImageRef image = CGDisplayCreateImage( displays[i] );
+    SaveImage( image, outputFile );
+    CFRelease( outputFile );
+  }
 
 }
 
